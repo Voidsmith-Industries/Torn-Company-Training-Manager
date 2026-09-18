@@ -10,7 +10,7 @@ The manager combines a guarded training queue, paid-train commitments, fair rota
 
 Open the production userscript and let Tampermonkey install or update it:
 
-`https://raw.githubusercontent.com/R4G3RUNN3R/Torn-Company-Training-Manager/main/dist/Torn%20Company%20Training%20Manager.user.js`
+`https://raw.githubusercontent.com/Voidsmith-Industries/Torn-Company-Training-Manager/main/dist/Torn%20Company%20Training%20Manager.user.js`
 
 The userscript `@updateURL` and `@downloadURL` point to the same main-branch production file.
 
