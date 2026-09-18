@@ -1,0 +1,28 @@
+name: Bug report
+description: Report a reproducible Company Training Manager problem
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include Torn API keys, RFC tokens, cookies, authentication data, or private user data."
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Userscript version
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior

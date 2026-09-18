@@ -13,18 +13,32 @@ function toText(value) {
   return typeof value === "string" ? value : "";
 }
 
-function decodeBasicEntities(text) {
+function decodeTextEntities(text) {
   return text
     .replace(/&amp;/gi, "&")
-    .replace(/&lt;/gi, "<")
-    .replace(/&gt;/gi, ">")
     .replace(/&quot;/gi, '"')
     .replace(/&#39;|&#x27;/gi, "'")
     .replace(/&nbsp;/gi, " ");
 }
 
 function stripTags(html) {
-  return decodeBasicEntities(toText(html).replace(/<[^>]*>/g, "")).replace(/\s+/g, " ").trim();
+  const input = toText(html);
+  let plain = "";
+  let inTag = false;
+  for (const char of input) {
+    if (char === "<") {
+      inTag = true;
+      plain += " ";
+      continue;
+    }
+    if (char === ">") {
+      inTag = false;
+      plain += " ";
+      continue;
+    }
+    if (!inTag) plain += char;
+  }
+  return decodeTextEntities(plain).replace(/\s+/g, " ").trim();
 }
 
 function parseIdAndName(html) {

@@ -19,19 +19,19 @@ test("package version is the v1.2.4 release source", async () => {
 test("source header uses build-time version placeholder and explicit update metadata", async () => {
   const header = await text("src/userscript-header.txt");
   assert.match(header, /@version\s+__VERSION__/);
-  assert.match(header, new RegExp(`@updateURL\\s+${RAW.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
-  assert.match(header, new RegExp(`@downloadURL\\s+${RAW.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
-  assert.match(header, new RegExp(`@supportURL\\s+${SUPPORT.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
+  assert.ok(header.includes("@updateURL    " + RAW));
+  assert.ok(header.includes("@downloadURL  " + RAW));
+  assert.ok(header.includes("@supportURL   " + SUPPORT));
 });
 
 test("built userscript version and metadata match package version", async () => {
   const pkg = JSON.parse(await text("package.json"));
   const dist = await text("dist/Torn Company Training Manager.user.js");
-  assert.match(dist, new RegExp(`@version\\s+${pkg.version.replaceAll(".", "\\.")}`));
+  assert.match(dist, new RegExp("@version\\s+" + pkg.version.replaceAll(".", "\\.")));
   assert.equal(dist.includes("__VERSION__"), false);
-  assert.match(dist, /@updateURL\s+https:\/\/raw\.githubusercontent\.com\/Voidsmith-Industries\/Torn-Company-Training-Manager\/main\/dist\/Torn%20Company%20Training%20Manager\.user\.js/);
-  assert.match(dist, /@downloadURL\s+https:\/\/raw\.githubusercontent\.com\/Voidsmith-Industries\/Torn-Company-Training-Manager\/main\/dist\/Torn%20Company%20Training%20Manager\.user\.js/);
-  assert.match(dist, /@supportURL\s+https:\/\/github\.com\/Voidsmith-Industries\/Torn-Company-Training-Manager\/issues/);
+  assert.ok(dist.includes("@updateURL    " + RAW));
+  assert.ok(dist.includes("@downloadURL  " + RAW));
+  assert.ok(dist.includes("@supportURL   " + SUPPORT));
 });
 
 test("README and changelog identify the same current v1.2.4 release", async () => {

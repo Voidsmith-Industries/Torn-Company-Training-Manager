@@ -27,7 +27,8 @@ function state(overrides = {}) {
 test("Gear settings expose simple section navigation instead of one wall of controls", () => {
   const html = settingsFormHtml(state(), { hasApiKey: true, activeSection: "general" });
   for (const label of ["General", "Training Rules", "Paid Trains", "Fairness", "Notifications", "Appearance", "Data & Recovery", "Advanced"]) {
-    assert.match(html, new RegExp(label.replace("&", "&amp;|&"), "i"));
+    const encoded = label.replaceAll("&", "&amp;");
+    assert.ok(html.includes(label) || html.includes(encoded), "Expected settings label: " + label);
   }
   assert.match(html, /data-settings-section="general"[^>]*aria-expanded="true"/i);
   assert.match(html, /data-section-panel="general"/i);
