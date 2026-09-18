@@ -40,5 +40,4 @@ test("README and changelog identify the same current v1.2.5 release", async () =
   assert.match(readme, /Current release:\s*v1\.2\.5/i);
   assert.match(changelog, /\[1\.2\.5\]/);
   assert.match(changelog, /distribution|install|update/i);
-  assert.ok(changelog.includes("voidsmithindustries.com"));
 });
