@@ -14,11 +14,14 @@ function toText(value) {
 }
 
 function decodeTextEntities(text) {
-  return text
-    .replace(/&amp;/gi, "&")
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;|&#x27;/gi, "'")
-    .replace(/&nbsp;/gi, " ");
+  const entities = Object.freeze({
+    "&amp;": "&",
+    "&quot;": '"',
+    "&#39;": "'",
+    "&#x27;": "'",
+    "&nbsp;": " "
+  });
+  return text.replace(/&(amp|quot|#39|#x27|nbsp);/gi, (entity) => entities[entity.toLowerCase()] ?? entity);
 }
 
 function stripTags(html) {
