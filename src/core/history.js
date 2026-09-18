@@ -13,28 +13,17 @@ function toText(value) {
   return typeof value === "string" ? value : "";
 }
 
-function decodeBasicEntities(text) {
+function decodeTextEntities(text) {
   return text
     .replace(/&amp;/gi, "&")
-    .replace(/&lt;/gi, "<")
-    .replace(/&gt;/gi, ">")
     .replace(/&quot;/gi, '"')
     .replace(/&#39;|&#x27;/gi, "'")
     .replace(/&nbsp;/gi, " ");
 }
 
 function stripTags(html) {
-  let value = toText(html);
-  for (let pass = 0; pass < 4; pass += 1) {
-    const decoded = decodeBasicEntities(value);
-    const stripped = decoded.replace(/<[^>]*>/g, "");
-    if (stripped === value) {
-      value = stripped;
-      break;
-    }
-    value = stripped;
-  }
-  return value.replace(/\s+/g, " ").trim();
+  const withoutMarkup = toText(html).replace(/<[^>]*>/g, "");
+  return decodeTextEntities(withoutMarkup).replace(/\s+/g, " ").trim();
 }
 
 function parseIdAndName(html) {
