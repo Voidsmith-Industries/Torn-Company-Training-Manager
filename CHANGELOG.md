@@ -2,6 +2,13 @@
 
 All notable changes to Torn Company Training Manager are documented here.
 
+## [1.2.6] - 2026-09-18
+
+### Presentation
+
+- Added the dedicated Voidsmith briefcase icon to the userscript metadata.
+- Preserved the existing website-hosted install/update authority and training behavior.
+
 ## [1.2.5] - 2026-09-18
 
 ### Distribution

@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name         Torn Company Training Manager
 // @namespace    r4g3runn3r.company.training.manager
-// @version      1.2.5
+// @version      1.2.6
 // @description  Fair company train rotation with activity/addiction eligibility, guarded payroll controls, diagnostics, and local audit trail.
 // @author       R4G3RUNN3R
+// @icon         data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%2311170d%22%2F%3E%3Crect%20x%3D%2210%22%20y%3D%2222%22%20width%3D%2244%22%20height%3D%2232%22%20rx%3D%226%22%20fill%3D%22%23f3f7ee%22%2F%3E%3Cpath%20d%3D%22M23%2022v-5a5%205%200%200%201%205-5h8a5%205%200%200%201%205%205v5%22%20fill%3D%22none%22%20stroke%3D%22%23d9ff52%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M10%2034h44%22%20stroke%3D%22%23d9ff52%22%20stroke-width%3D%224%22%2F%3E%3Crect%20x%3D%2229%22%20y%3D%2231%22%20width%3D%226%22%20height%3D%228%22%20rx%3D%222%22%20fill%3D%22%2311170d%22%2F%3E%3C%2Fsvg%3E
 // @match        https://www.torn.com/*
 // @updateURL    https://voidsmithindustries.com/torn/install/company-training-manager.user.js
 // @downloadURL  https://voidsmithindustries.com/torn/install/company-training-manager.user.js
