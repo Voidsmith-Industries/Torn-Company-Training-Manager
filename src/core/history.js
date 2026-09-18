@@ -22,8 +22,23 @@ function decodeTextEntities(text) {
 }
 
 function stripTags(html) {
-  const withoutMarkup = toText(html).replace(/<[^>]*>/g, "");
-  return decodeTextEntities(withoutMarkup).replace(/\s+/g, " ").trim();
+  const input = toText(html);
+  let plain = "";
+  let inTag = false;
+  for (const char of input) {
+    if (char === "<") {
+      inTag = true;
+      plain += " ";
+      continue;
+    }
+    if (char === ">") {
+      inTag = false;
+      plain += " ";
+      continue;
+    }
+    if (!inTag) plain += char;
+  }
+  return decodeTextEntities(plain).replace(/\s+/g, " ").trim();
 }
 
 function parseIdAndName(html) {
