@@ -4,16 +4,16 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
-const RAW = "https://raw.githubusercontent.com/Voidsmith-Industries/Torn-Company-Training-Manager/main/dist/Torn%20Company%20Training%20Manager.user.js";
-const SUPPORT = "https://github.com/Voidsmith-Industries/Torn-Company-Training-Manager/issues";
+const RAW = "https://voidsmithindustries.com/torn/install/company-training-manager.user.js";
+const SUPPORT = "https://voidsmithindustries.com/torn/support.html";
 
 async function text(path) {
   return readFile(resolve(root, path), "utf8");
 }
 
-test("package version is the v1.2.4 release source", async () => {
+test("package version is the v1.2.5 release source", async () => {
   const pkg = JSON.parse(await text("package.json"));
-  assert.equal(pkg.version, "1.2.4");
+  assert.equal(pkg.version, "1.2.5");
 });
 
 test("source header uses build-time version placeholder and explicit update metadata", async () => {
@@ -34,12 +34,10 @@ test("built userscript version and metadata match package version", async () => 
   assert.ok(dist.includes("@supportURL   " + SUPPORT));
 });
 
-test("README and changelog identify the same current v1.2.4 release", async () => {
+test("README and changelog identify the same current v1.2.5 release", async () => {
   const readme = await text("README.md");
   const changelog = await text("CHANGELOG.md");
-  assert.match(readme, /Current release:\s*v1\.2\.4/i);
-  assert.match(changelog, /\[1\.2\.4\]/);
-  assert.match(changelog, /retired|removed/i);
-  assert.match(changelog, /global badge|floating badge/i);
-  assert.match(changelog, /compact.*launcher|Voidsmith.*launcher/i);
+  assert.match(readme, /Current release:\s*v1\.2\.5/i);
+  assert.match(changelog, /\[1\.2\.5\]/);
+  assert.match(changelog, /distribution|install|update/i);
 });

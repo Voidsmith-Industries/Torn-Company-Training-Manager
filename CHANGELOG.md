@@ -2,6 +2,14 @@
 
 All notable changes to Torn Company Training Manager are documented here.
 
+## [1.2.5] - 2026-09-18
+
+### Distribution
+
+- Moved public install/update authority to https://voidsmithindustries.com/torn/install/company-training-manager.user.js.
+- Support metadata now points to the Voidsmith Torn support page instead of a GitHub install-time destination.
+- Runtime training behavior is unchanged from v1.2.4.
+
 ## [1.2.4] - 2026-09-12
 
 ### Changed
