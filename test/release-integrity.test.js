@@ -11,14 +11,15 @@ async function text(path) {
   return readFile(resolve(root, path), "utf8");
 }
 
-test("package version is the v1.2.5 release source", async () => {
+test("package version is the v1.2.6 release source", async () => {
   const pkg = JSON.parse(await text("package.json"));
-  assert.equal(pkg.version, "1.2.5");
+  assert.equal(pkg.version, "1.2.6");
 });
 
 test("source header uses build-time version placeholder and explicit update metadata", async () => {
   const header = await text("src/userscript-header.txt");
   assert.match(header, /@version\s+__VERSION__/);
+  assert.match(header, /@icon\s+data:image\/svg\+xml,/);
   assert.ok(header.includes("@updateURL    " + RAW));
   assert.ok(header.includes("@downloadURL  " + RAW));
   assert.ok(header.includes("@supportURL   " + SUPPORT));
@@ -29,15 +30,16 @@ test("built userscript version and metadata match package version", async () => 
   const dist = await text("dist/Torn Company Training Manager.user.js");
   assert.match(dist, new RegExp("@version\\s+" + pkg.version.replaceAll(".", "\\.")));
   assert.equal(dist.includes("__VERSION__"), false);
+  assert.match(dist, /@icon\s+data:image\/svg\+xml,/);
   assert.ok(dist.includes("@updateURL    " + RAW));
   assert.ok(dist.includes("@downloadURL  " + RAW));
   assert.ok(dist.includes("@supportURL   " + SUPPORT));
 });
 
-test("README and changelog identify the same current v1.2.5 release", async () => {
+test("README and changelog identify the same current v1.2.6 release", async () => {
   const readme = await text("README.md");
   const changelog = await text("CHANGELOG.md");
-  assert.match(readme, /Current release:\s*v1\.2\.5/i);
-  assert.match(changelog, /\[1\.2\.5\]/);
+  assert.match(readme, /Current release:\s*v1\.2\.6/i);
+  assert.match(changelog, /\[1\.2\.6\]/);
   assert.match(changelog, /distribution|install|update/i);
 });
