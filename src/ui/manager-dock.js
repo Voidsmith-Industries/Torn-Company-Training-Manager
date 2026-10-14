@@ -1,25 +1,27 @@
 function isActuallyVisible(el, windowRef) {
   if (!el) return false;
   try {
-    const style = windowRef?.getComputedStyle?.(el);
-    return (!style || style.display !== "none")
-      && (!style || style.visibility !== "hidden")
-      && (!style || style.opacity !== "0");
+    for (let node = el; node && node.nodeType === 1; node = node.parentElement) {
+      const style = windowRef?.getComputedStyle?.(node);
+      if (style && (style.display === "none" || style.visibility === "hidden" || style.opacity === "0")) return false;
+    }
+    return true;
   } catch {
     return false;
   }
 }
 
 export function findStatusIconsBar(documentRef, windowRef = globalThis.window) {
-  const selectors = [
-    'ul[class*="status-icons"]',
-    'ul[class*="statusIcons"]'
+  const candidates = [
+    ...Array.from(documentRef?.querySelectorAll?.('ul[class*="status-icons"]') || []),
+    ...Array.from(documentRef?.querySelectorAll?.('ul[class*="statusIcons"]') || [])
   ];
-  for (const selector of selectors) {
-    const candidate = documentRef?.querySelector?.(selector);
-    if (isActuallyVisible(candidate, windowRef)) return candidate;
-  }
-  return null;
+  // Prefer a rendered header list; JSDOM fixture geometry is zero for every node.
+  const visible = candidates.filter((node) => isActuallyVisible(node, windowRef));
+  return visible.find((node) => {
+    const rect = node.getBoundingClientRect?.();
+    return rect && rect.width > 0 && rect.height > 0;
+  }) || visible[0] || null;
 }
 
 function nextEmployeeName(state) {
