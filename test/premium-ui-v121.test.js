@@ -102,7 +102,7 @@ test("employee actions render as a dedicated premium action sheet", () => {
   assert.match(TCM_STYLES, /\.r4-tcm-employee-action-sheet\{/);
 });
 
-test("sidebar launcher uses a vector Voidsmith glyph rather than T-diamond text", () => {
+test("training launcher shows distinct graduation-cap icon in the Torn status bar", () => {
   const dom = new JSDOM('<!doctype html><html><head></head><body><ul class="status-icons"></ul></body></html>', { url: "https://www.torn.com/companies.php" });
   const dock = mountManagerDock({
     documentRef: dom.window.document,
@@ -114,7 +114,7 @@ test("sidebar launcher uses a vector Voidsmith glyph rather than T-diamond text"
   });
   const launcher = dom.window.document.querySelector(".r4-tcm-dock-icon, #r4-tcm-dock-fallback button");
   assert.ok(launcher);
-  assert.ok(launcher.querySelector("svg"));
+  assert.equal(launcher.textContent, "🎓");
   assert.doesNotMatch(launcher.textContent, /T\s*◆/);
   dock.destroy();
 });
