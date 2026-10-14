@@ -6,7 +6,7 @@ import { employeeMenuHtml } from "../src/ui/employee-menu.js";
 import { settingsFormHtml } from "../src/ui/settings.js";
 import { TCM_STYLES } from "../src/ui/styles.js";
 import { StorageRepo } from "../src/infra/storage.js";
-import { mountManagerDock } from "../src/ui/manager-dock.js";
+import { mountManagerDock, findStatusIconsBar } from "../src/ui/manager-dock.js";
 
 function emptyState() {
   return {
@@ -100,6 +100,12 @@ test("employee actions render as a dedicated premium action sheet", () => {
   assert.match(html, /r4-tcm-action-sheet-actions/);
   assert.match(html, /r4-tcm-action-sheet-footer/);
   assert.match(TCM_STYLES, /\.r4-tcm-employee-action-sheet\{/);
+});
+
+test("status-bar selection ignores hidden responsive header copies", () => {
+  const dom = new JSDOM('<!doctype html><html><body><div style="display:none"><ul class="status-icons"></ul></div><header><ul class="status-icons"></ul></header></body></html>', { url: "https://www.torn.com/" });
+  const visible = dom.window.document.querySelector("header ul");
+  assert.equal(findStatusIconsBar(dom.window.document, dom.window), visible);
 });
 
 test("training launcher shows distinct graduation-cap icon in the Torn status bar", () => {
