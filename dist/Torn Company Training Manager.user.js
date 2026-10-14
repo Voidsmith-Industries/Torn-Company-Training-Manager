@@ -3708,10 +3708,8 @@
   function isActuallyVisible(el, windowRef) {
     if (!el) return false;
     try {
-      const rect = el.getBoundingClientRect?.();
       const style = windowRef?.getComputedStyle?.(el);
-      const hasSize = !rect || Number(rect.width) > 0 && Number(rect.height) > 0;
-      return hasSize && (!style || style.display !== "none") && (!style || style.visibility !== "hidden") && (!style || style.opacity !== "0");
+      return (!style || style.display !== "none") && (!style || style.visibility !== "hidden") && (!style || style.opacity !== "0");
     } catch {
       return false;
     }
@@ -3719,12 +3717,7 @@
   function findStatusIconsBar(documentRef, windowRef = globalThis.window) {
     const selectors = [
       'ul[class*="status-icons"]',
-      'ul[class*="statusIcons"]',
-      'div[class*="status-icons"] ul',
-      'div[class*="statusIcons"] ul',
-      "header ul",
-      '[class*="header"] ul',
-      '[class*="top"] ul'
+      'ul[class*="statusIcons"]'
     ];
     for (const selector of selectors) {
       const candidate = documentRef?.querySelector?.(selector);
@@ -3751,11 +3744,10 @@
     const action = isManagerOpen ? "Minimize" : "Open";
     return `${action} Company Training Manager \xB7 ${trains} train${trains === 1 ? "" : "s"}${next ? ` \xB7 Next: ${next}` : ""}`;
   }
-  var VOIDSMITH_TRAINING_GLYPH = `<svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path class="r4-tcm-dock-frame" d="M16 2.8 27.7 9.5v13L16 29.2 4.3 22.5v-13Z"/><path class="r4-tcm-dock-v" d="m9.1 10.2 6.9 12.1 6.9-12.1-3.5 1.9-3.4 5.9-3.4-5.9Z"/><path class="r4-tcm-dock-bar" d="M10.3 8.2h11.4v2.4H10.3z"/></svg>`;
   var MANAGER_DOCK_STYLES = `
 .r4-tcm-dock-icon{position:relative!important;width:32px!important;height:32px!important;min-width:32px!important;display:flex!important;align-items:center!important;justify-content:center!important;cursor:pointer!important;user-select:none!important;list-style:none!important;border:1px solid #4a4a53!important;border-radius:9px!important;margin:0 3px!important;background:linear-gradient(145deg,#1b1b20,#0b0b0e)!important;box-shadow:inset 0 1px 0 #ffffff0d,0 4px 12px #0008!important;transition:transform .15s ease,background .15s ease,border-color .15s ease,box-shadow .15s ease!important}
 .r4-tcm-dock-icon:hover{transform:translateY(-1px)!important;background:linear-gradient(145deg,#24242a,#111116)!important;border-color:#7a3331!important;box-shadow:inset 0 1px 0 #ffffff12,0 5px 16px #000a,0 0 12px #c3474326!important}
-.r4-tcm-dock-glyph{width:22px!important;height:22px!important;display:flex!important;align-items:center!important;justify-content:center!important;pointer-events:none!important}.r4-tcm-dock-glyph svg{width:22px!important;height:22px!important;display:block!important}.r4-tcm-dock-frame{fill:#111116;stroke:#777782;stroke-width:1.2}.r4-tcm-dock-v{fill:#d6d6dc}.r4-tcm-dock-bar{fill:#c34743;filter:drop-shadow(0 0 2px #c3474388)}
+.r4-tcm-dock-glyph{width:22px!important;height:22px!important;display:flex!important;align-items:center!important;justify-content:center!important;pointer-events:none!important;font-size:21px!important;line-height:1!important}.r4-tcm-dock-glyph svg{width:22px!important;height:22px!important;display:block!important}.r4-tcm-dock-frame{fill:#111116;stroke:#777782;stroke-width:1.2}.r4-tcm-dock-v{fill:#d6d6dc}.r4-tcm-dock-bar{fill:#c34743;filter:drop-shadow(0 0 2px #c3474388)}
 .r4-tcm-dock-dot{position:absolute!important;right:0!important;bottom:0!important;width:8px!important;height:8px!important;border-radius:50%!important;background:#888!important;border:2px solid #101014!important}
 .r4-tcm-dock-icon[data-tone="ready"] .r4-tcm-dock-dot,.r4-tcm-dock-fallback[data-tone="ready"] .r4-tcm-dock-dot{background:#63d467!important;box-shadow:0 0 6px #63d46799!important}
 .r4-tcm-dock-icon[data-tone="warning"] .r4-tcm-dock-dot,.r4-tcm-dock-fallback[data-tone="warning"] .r4-tcm-dock-dot{background:#e2b84d!important;box-shadow:0 0 6px #e2b84d77!important}
@@ -3773,7 +3765,8 @@
   function buildGlyph(documentRef) {
     const glyph = documentRef.createElement("span");
     glyph.classList.add("r4-tcm-dock-glyph");
-    glyph.innerHTML = VOIDSMITH_TRAINING_GLYPH;
+    glyph.textContent = "\u{1F393}";
+    glyph.setAttribute?.("aria-hidden", "true");
     return glyph;
   }
   function buildStatusDot(documentRef) {
@@ -3799,24 +3792,6 @@
       if (event?.key === "Enter" || event?.key === " ") activate(event);
     });
     return li;
-  }
-  function buildFallback(documentRef, onToggle) {
-    const wrap = documentRef.createElement("div");
-    wrap.setAttribute?.("id", "r4-tcm-dock-fallback");
-    wrap.classList.add("r4-tcm-dock-fallback");
-    const button2 = documentRef.createElement("button");
-    button2.setAttribute?.("type", "button");
-    button2.setAttribute?.("aria-label", "Company Training Manager");
-    button2.appendChild(buildGlyph(documentRef));
-    button2.appendChild(buildStatusDot(documentRef));
-    button2.addEventListener?.("click", (event) => {
-      event?.preventDefault?.();
-      event?.stopPropagation?.();
-      onToggle?.();
-    });
-    wrap.appendChild(button2);
-    documentRef.body?.appendChild?.(wrap);
-    return wrap;
   }
   function managerRoot(documentRef) {
     return documentRef?.getElementById?.("r4-tcm-company-root") || null;
@@ -3878,14 +3853,13 @@
       currentOpen = managerIsOpen(documentRef);
       updatePresentation();
     };
-    let fallback = documentRef.getElementById?.("r4-tcm-dock-fallback") || buildFallback(documentRef, toggle);
+    let fallback = null;
     const ensure = () => {
       if (destroyed) return;
       if (typeof isManagerOpen !== "boolean") currentOpen = managerIsOpen(documentRef);
       const bar = findStatusIconsBar(documentRef, windowRef);
       const existing = documentRef.querySelector?.(".r4-tcm-dock-icon");
       if (bar) {
-        fallback.style.display = "none";
         if (existing && existing.parentElement === bar) {
           icon = existing;
         } else {
@@ -3900,7 +3874,6 @@
       } else {
         existing?.remove?.();
         icon = null;
-        fallback.style.display = "block";
       }
       updatePresentation();
     };
