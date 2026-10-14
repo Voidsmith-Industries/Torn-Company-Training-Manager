@@ -1,11 +1,8 @@
 function isActuallyVisible(el, windowRef) {
   if (!el) return false;
   try {
-    const rect = el.getBoundingClientRect?.();
     const style = windowRef?.getComputedStyle?.(el);
-    const hasSize = !rect || (Number(rect.width) > 0 && Number(rect.height) > 0);
-    return hasSize
-      && (!style || style.display !== "none")
+    return (!style || style.display !== "none")
       && (!style || style.visibility !== "hidden")
       && (!style || style.opacity !== "0");
   } catch {
