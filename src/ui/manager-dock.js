@@ -16,6 +16,12 @@ export function findStatusIconsBar(documentRef, windowRef = globalThis.window) {
     ...Array.from(documentRef?.querySelectorAll?.('ul[class*="status-icons"]') || []),
     ...Array.from(documentRef?.querySelectorAll?.('ul[class*="statusIcons"]') || [])
   ];
+  if (candidates.length === 0 && !documentRef?.querySelectorAll) {
+    for (const selector of ['ul[class*="status-icons"]', 'ul[class*="statusIcons"]']) {
+      const one = documentRef?.querySelector?.(selector);
+      if (one) candidates.push(one);
+    }
+  }
   // Prefer a rendered header list; JSDOM fixture geometry is zero for every node.
   const visible = candidates.filter((node) => isActuallyVisible(node, windowRef));
   return visible.find((node) => {
