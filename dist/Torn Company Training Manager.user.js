@@ -3895,8 +3895,30 @@
     };
     ensure();
     documentRef.addEventListener?.("click", onDocumentClick, true);
-    const observer = MutationObserverImpl ? new MutationObserverImpl(() => ensure()) : null;
+    const observer = MutationObserverImpl ? new MutationObserverImpl(() => {
+      ensure();
+      refreshVisibilityWatch();
+    }) : null;
     observer?.observe?.(documentRef.documentElement || documentRef.body, { childList: true, subtree: true });
+    const visibilityObserver = MutationObserverImpl ? new MutationObserverImpl(() => ensure()) : null;
+    let watchedNodes = [];
+    const refreshVisibilityWatch = () => {
+      if (!visibilityObserver || destroyed) return;
+      const next = /* @__PURE__ */ new Set();
+      for (const bar of documentRef.querySelectorAll?.('ul[class*="status-icons"],ul[class*="statusIcons"]') || []) {
+        for (let node = bar; node && node.nodeType === 1; node = node.parentElement) next.add(node);
+      }
+      if (next.size === watchedNodes.length && watchedNodes.every((node) => next.has(node))) return;
+      visibilityObserver.disconnect();
+      watchedNodes = [...next];
+      for (const node of watchedNodes) visibilityObserver.observe(node, { attributes: true, attributeFilter: ["class", "style", "hidden"] });
+    };
+    refreshVisibilityWatch();
+    const onResize = () => {
+      ensure();
+      refreshVisibilityWatch();
+    };
+    windowRef?.addEventListener?.("resize", onResize);
     return {
       update(nextState, { managerOpen } = {}) {
         currentState = nextState || {};
@@ -3908,6 +3930,9 @@
         if (destroyed) return;
         destroyed = true;
         observer?.disconnect?.();
+        visibilityObserver?.disconnect?.();
+        watchedNodes = [];
+        windowRef?.removeEventListener?.("resize", onResize);
         documentRef.removeEventListener?.("click", onDocumentClick, true);
         icon?.remove?.();
         fallback?.remove?.();
