@@ -1654,7 +1654,7 @@
       dockedPay: null,
       dockedAt: nowInt(nowSeconds),
       dockVerifiedAt: null,
-      reasonsAtDock: Array.isArray(eligibility?.reasons)? eligibility.reasons.map((r) => ({ ...r })) : [],
+      reasonsAtDock: Array.isArray(eligibility?.reasons) ? eligibility.reasons.map((r) => ({ ...r })) : [],
       restoredAt: null
     };
   }
@@ -2127,7 +2127,8 @@
         history: {
           eventCount: Object.keys(this.state.history?.eventsByNewsId || {}).length,
           unresolvedCount: Object.keys(this.state.history?.unresolvedByNewsId || {}).length,
-          newestTimestamp: Number(this.state.history?.newestTimestamp) || 0},
+          newestTimestamp: Number(this.state.history?.newestTimestamp) || 0
+      },
         audit: {
           entryCount: this.state.audit?.entries?.length ?? 0,
           storageError: this.state.auditError || null
@@ -4016,7 +4017,7 @@
     const contracts = paid.contractsById || {};
     return (paid.queue || []).map((id) => contracts[id]).filter(Boolean);
   }
-  function paidSettingsHtml(state ={}) {
+  function paidSettingsHtml(state = {}) {
     const contracts = activeContracts(state);
     const rows = contracts.map((contract, index) => `<div class="r4-tcm-paid-setting-row" data-paid-contract="${escapeHtml(contract.id)}">
     <div class="r4-tcm-paid-setting-main">
@@ -5307,4 +5308,4 @@ Import this backup?`) : false;
       console.error("[TCM] Failed to start:", error?.message || "Unknown error");
     });
   }
-})();⚠️ Sin salida
+})();
