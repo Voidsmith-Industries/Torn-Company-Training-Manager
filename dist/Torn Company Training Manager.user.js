@@ -2128,7 +2128,7 @@
           eventCount: Object.keys(this.state.history?.eventsByNewsId || {}).length,
           unresolvedCount: Object.keys(this.state.history?.unresolvedByNewsId || {}).length,
           newestTimestamp: Number(this.state.history?.newestTimestamp) || 0
-      },
+        },
         audit: {
           entryCount: this.state.audit?.entries?.length ?? 0,
           storageError: this.state.auditError || null
