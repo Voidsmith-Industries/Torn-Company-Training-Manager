@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";
-import { mountManagerDock } from "../src/ui/manager-dock.js";
+import { findStatusIconsBar, mountManagerDock } from "../src/ui/manager-dock.js";
 
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -38,5 +38,20 @@ test("TUI-001: resize selects the newly visible responsive status bar", async ()
   assert.equal(document.querySelector("#desktop .r4-tcm-dock-icon"), null);
   assert.ok(document.querySelector("#mobile .r4-tcm-dock-icon"));
   dock.destroy();
+  dom.window.close();
+});
+
+test("TUI-001: never mount into zero-geometry responsive headers in real layout", () => {
+  const dom = new JSDOM(`<!doctype html><body>
+    <header><ul id="hidden-copy" class="status-icons"></ul></header>
+    <header><ul id="visible-copy" class="status-icons"></ul></header>
+  </body>`, { url: "https://www.torn.com/" });
+  const { document, window } = dom.window;
+  Object.defineProperty(window.navigator, "userAgent", { configurable: true, value: "Mozilla/5.0" });
+  document.getElementById("hidden-copy").getBoundingClientRect = () => ({ width: 0, height: 0 });
+  document.getElementById("visible-copy").getBoundingClientRect = () => ({ width: 120, height: 24 });
+  assert.equal(findStatusIconsBar(document, window)?.id, "visible-copy");
+  document.getElementById("visible-copy").getBoundingClientRect = () => ({ width: 0, height: 0 });
+  assert.equal(findStatusIconsBar(document, window), null);
   dom.window.close();
 });
