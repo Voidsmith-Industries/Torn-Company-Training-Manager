@@ -11,9 +11,9 @@ async function text(path) {
   return readFile(resolve(root, path), "utf8");
 }
 
-test("package version is the v1.2.6 release source", async () => {
+test("package version is the v1.2.7 release source", async () => {
   const pkg = JSON.parse(await text("package.json"));
-  assert.equal(pkg.version, "1.2.6");
+  assert.equal(pkg.version, "1.2.7");
 });
 
 test("source header uses build-time version placeholder and explicit update metadata", async () => {
