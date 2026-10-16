@@ -43,3 +43,16 @@ test("README and changelog identify the v1.2.7 candidate without claiming public
   assert.match(changelog, /\[1\.2\.7\] - Unreleased/);
   assert.match(changelog, /distribution|install|update/i);
 });
+
+
+test("update indicator retains mobile touch target and does not guess local version", async () => {
+  const manager = await text("src/ui/company-manager.js");
+  const styles = await text("src/ui/styles.js");
+  const dist = await text("dist/Torn Company Training Manager.user.js");
+  assert.match(manager, /class="r4-tcm-window-btn r4-tcm-release-status"/);
+  assert.doesNotMatch(manager, /style="min-width:0;max-width:72px/);
+  assert.match(styles, /@media\(max-width:720px\)\{\.r4-tcm-release-status\{min-width:40px/);
+  assert.match(manager, /releaseVersion\(globalThis\.GM_info\?\.script\?\.version\)/);
+  assert.doesNotMatch(manager, /GM_info\?\.script\?\.version \|\| "1\.2\.7"/);
+  assert.match(dist, /r4-tcm-release-status/);
+});
