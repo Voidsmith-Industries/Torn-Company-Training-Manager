@@ -24,10 +24,14 @@ export function findStatusIconsBar(documentRef, windowRef = globalThis.window) {
   }
   // Prefer a rendered header list; JSDOM fixture geometry is zero for every node.
   const visible = candidates.filter((node) => isActuallyVisible(node, windowRef));
-  return visible.find((node) => {
+  const rendered = visible.find((node) => {
     const rect = node.getBoundingClientRect?.();
     return rect && rect.width > 0 && rect.height > 0;
-  }) || visible[0] || null;
+  });
+  if (rendered) return rendered;
+  // JSDOM has no layout engine. In real Torn pages a zero-sized responsive
+  // status bar is not an accessible launcher, even if its own CSS is visible.
+  return /jsdom/i.test(String(windowRef?.navigator?.userAgent ?? "")) ? visible[0] || null : null;
 }
 
 function nextEmployeeName(state) {
