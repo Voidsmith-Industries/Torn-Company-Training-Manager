@@ -36,10 +36,10 @@ test("built userscript version and metadata match package version", async () => 
   assert.ok(dist.includes("@supportURL   " + SUPPORT));
 });
 
-test("README and changelog identify the same current v1.2.6 release", async () => {
+test("README and changelog identify the v1.2.7 candidate without claiming publication", async () => {
   const readme = await text("README.md");
   const changelog = await text("CHANGELOG.md");
-  assert.match(readme, /Current release:\s*v1\.2\.6/i);
-  assert.match(changelog, /\[1\.2\.6\]/);
+  assert.match(readme, /Current release candidate:\s*v1\.2\.7/i);
+  assert.match(changelog, /\[1\.2\.7\] - Unreleased/);
   assert.match(changelog, /distribution|install|update/i);
 });
