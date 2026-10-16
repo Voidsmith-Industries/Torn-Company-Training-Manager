@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Torn Company Training Manager
 // @namespace    r4g3runn3r.company.training.manager
-// @version      1.2.6
+// @version      1.2.7
 // @description  Fair company train rotation with activity/addiction eligibility, guarded payroll controls, diagnostics, and local audit trail.
 // @author       R4G3RUNN3R
 // @icon         data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%2311170d%22%2F%3E%3Crect%20x%3D%2210%22%20y%3D%2222%22%20width%3D%2244%22%20height%3D%2232%22%20rx%3D%226%22%20fill%3D%22%23f3f7ee%22%2F%3E%3Cpath%20d%3D%22M23%2022v-5a5%205%200%200%201%205-5h8a5%205%200%200%201%205%205v5%22%20fill%3D%22none%22%20stroke%3D%22%23d9ff52%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M10%2034h44%22%20stroke%3D%22%23d9ff52%22%20stroke-width%3D%224%22%2F%3E%3Crect%20x%3D%2229%22%20y%3D%2231%22%20width%3D%226%22%20height%3D%228%22%20rx%3D%222%22%20fill%3D%22%2311170d%22%2F%3E%3C%2Fsvg%3E
@@ -16,6 +16,7 @@
 // @grant        GM_registerMenuCommand
 // @grant        GM_info
 // @connect      api.torn.com
+// @connect      voidsmithindustries.com
 // @run-at       document-idle
 // ==/UserScript==
 
@@ -3293,6 +3294,75 @@
   }
 
   // src/ui/company-manager.js
+  var release = { checked: false, label: "Checking\u2026", href: null, updated: false };
+  function releaseVersion(value) {
+    const bits = String(value ?? "").replace(/^v/i, "").split(".");
+    if (bits.length !== 3 || bits.some((bit) => !/^\d+$/.test(bit))) return null;
+    return bits.map(Number);
+  }
+  function showReleaseStatus(root) {
+    const link = root?.querySelector?.("[data-tcm-release-status]");
+    if (!link) return;
+    link.textContent = release.label;
+    const url = release.href;
+    if (url) {
+      link.href = url;
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "noopener noreferrer");
+    } else {
+      link.href = "https://voidsmithindustries.com/torn/scripts.html";
+    }
+    link.style.borderColor = release.updated ? "#e7b04c" : release.checked && release.label === "Up to date" ? "#69be85" : "";
+  }
+  function checkReleaseStatus(root) {
+    showReleaseStatus(root);
+    if (release.checked) return;
+    release.checked = true;
+    const request = globalThis.GM_xmlhttpRequest;
+    if (typeof request !== "function") {
+      release.label = "Check updates";
+      showReleaseStatus(root);
+      return;
+    }
+    request({
+      method: "GET",
+      url: "https://voidsmithindustries.com/torn/data/scripts.json",
+      timeout: 12e3,
+      onload: ({ status, responseText }) => {
+        try {
+          if (status !== 200) throw Error("No release data");
+          const items = JSON.parse(responseText);
+          const item = Array.isArray(items) && items.find((x) => x?.id === "company-training-manager");
+          if (!item || !["Live", "Beta"].includes(item.status) || item.publication?.status !== "approved" || item.publication?.installApproved !== true) throw Error("No approved release");
+          const current = releaseVersion(globalThis.GM_info?.script?.version || "1.2.7");
+          const newest = releaseVersion(item.version);
+          if (!current || !newest) throw Error("Invalid version");
+          const outdated = current.findIndex((part, i) => part !== newest[i]);
+          const needsUpdate = outdated >= 0 && current[outdated] < newest[outdated];
+          if (needsUpdate) {
+            const target = new URL(item.installUrl);
+            if (target.protocol !== "https:" || target.hostname !== "voidsmithindustries.com" || !target.pathname.startsWith("/torn/install/")) throw Error("Untrusted installer");
+            release.href = target.href;
+            release.label = "Update available \xB7 v" + item.version;
+            release.updated = true;
+          } else {
+            release.label = "Up to date";
+          }
+        } catch {
+          release.label = "Check updates";
+        }
+        showReleaseStatus(root);
+      },
+      onerror: () => {
+        release.label = "Check updates";
+        showReleaseStatus(root);
+      },
+      ontimeout: () => {
+        release.label = "Check updates";
+        showReleaseStatus(root);
+      }
+    });
+  }
   function pendingTrainReceipt(state, id) {
     return state?.trainReceipts?.receiptsByEmployeeId?.[id] ?? state?.trainReceipts?.receiptsByEmployeeId?.[String(id)] ?? null;
   }
@@ -3438,7 +3508,7 @@
     return `<section class="r4-tcm-manager r4-tcm-premium" data-tcm-state="${escapeHtml(state.status)}">
     <header class="r4-tcm-header" data-manager-drag-handle>
       <div class="r4-tcm-brand"><span class="r4-tcm-brand-mark">\u25C6</span><div><span>VOIDSMITH INDUSTRIES</span><strong>TRAINING MANAGER</strong></div></div>
-      <div class="r4-tcm-header-right"><span class="r4-tcm-health r4-tcm-health-${health}" title="Training Manager health"></span>
+      <div class="r4-tcm-header-right"><a data-tcm-release-status class="r4-tcm-window-btn" href="https://voidsmithindustries.com/torn/scripts.html" target="_blank" rel="noopener noreferrer" style="width:auto;min-width:92px;padding:0 7px;font-size:11px;white-space:nowrap" title="Voidsmith release status">Checking\u2026</a><span class="r4-tcm-health r4-tcm-health-${health}" title="Training Manager health"></span>
         <button type="button" class="r4-tcm-window-btn r4-tcm-attention-btn" data-action="attention" aria-label="Attention" title="Attention">\u26A0${attentionCount ? `<span>${attentionCount}</span>` : ""}</button>
         <button type="button" class="r4-tcm-window-btn r4-tcm-lock-btn" data-window-action="lock" aria-label="Unlock position" title="Unlock position">${lockIconHtml(true)}</button>
         <button type="button" class="r4-tcm-window-btn" data-window-action="minimize" aria-label="Minimize" title="Minimize">\u2212</button>
@@ -3484,6 +3554,7 @@
   function renderCompanyManager(root, state, actions = {}) {
     if (!root) return;
     root.innerHTML = companyManagerHtml(state);
+    checkReleaseStatus(root);
     if (!root.querySelectorAll) return;
     for (const button2 of root.querySelectorAll("[data-action]")) {
       button2.addEventListener?.("click", async () => {
