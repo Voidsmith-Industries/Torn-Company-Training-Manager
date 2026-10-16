@@ -2,7 +2,7 @@
 
 Tampermonkey userscript for Torn company directors, focused specifically on company training.
 
-**Current release: v1.2.6**
+**Current release candidate: v1.2.7 (not yet published)**
 
 The manager combines a guarded training queue, paid-train commitments, fair rotation modes, temporary director overrides, training-focused notifications, local recovery tools, and the existing verified training/payroll safety model. It deliberately does not attempt to become a general company ERP.
 

@@ -11,9 +11,9 @@ async function text(path) {
   return readFile(resolve(root, path), "utf8");
 }
 
-test("package version is the v1.2.6 release source", async () => {
+test("package version is the v1.2.7 release source", async () => {
   const pkg = JSON.parse(await text("package.json"));
-  assert.equal(pkg.version, "1.2.6");
+  assert.equal(pkg.version, "1.2.7");
 });
 
 test("source header uses build-time version placeholder and explicit update metadata", async () => {
@@ -36,10 +36,23 @@ test("built userscript version and metadata match package version", async () => 
   assert.ok(dist.includes("@supportURL   " + SUPPORT));
 });
 
-test("README and changelog identify the same current v1.2.6 release", async () => {
+test("README and changelog identify the v1.2.7 candidate without claiming publication", async () => {
   const readme = await text("README.md");
   const changelog = await text("CHANGELOG.md");
-  assert.match(readme, /Current release:\s*v1\.2\.6/i);
-  assert.match(changelog, /\[1\.2\.6\]/);
+  assert.match(readme, /Current release candidate:\s*v1\.2\.7/i);
+  assert.match(changelog, /\[1\.2\.7\] - Unreleased/);
   assert.match(changelog, /distribution|install|update/i);
+});
+
+
+test("update indicator retains mobile touch target and does not guess local version", async () => {
+  const manager = await text("src/ui/company-manager.js");
+  const styles = await text("src/ui/styles.js");
+  const dist = await text("dist/Torn Company Training Manager.user.js");
+  assert.match(manager, /class="r4-tcm-window-btn r4-tcm-release-status"/);
+  assert.doesNotMatch(manager, /style="min-width:0;max-width:72px/);
+  assert.match(styles, /@media\(max-width:720px\)\{\.r4-tcm-release-status\{min-width:40px/);
+  assert.match(manager, /releaseVersion\(globalThis\.GM_info\?\.script\?\.version\)/);
+  assert.doesNotMatch(manager, /GM_info\?\.script\?\.version \|\| "1\.2\.7"/);
+  assert.match(dist, /r4-tcm-release-status/);
 });

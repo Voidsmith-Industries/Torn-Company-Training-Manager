@@ -1,6 +1,59 @@
 import { escapeHtml, formatMoney, formatDateTime, formatDuration, byId } from "./dom.js";
 import { showConfirmModal, showNumberPrompt } from "./modals.js";
 
+
+// Read-only release discovery. Never send company or player data to the website.
+const release = { checked: false, label: "Checking…", href: null, updated: false, activeRoot: null };
+function releaseVersion(value) {
+  const bits = String(value ?? "").replace(/^v/i, "").split(".");
+  if (bits.length !== 3 || bits.some(bit => !/^\d+$/.test(bit))) return null;
+  return bits.map(Number);
+}
+function showReleaseStatus(root) {
+  const link = root?.querySelector?.("[data-tcm-release-status]");
+  if (!link) return;
+  link.textContent = release.label;
+  link.title = release.label;
+  const url = release.href;
+  if (url) { link.href = url; link.setAttribute("target", "_blank"); link.setAttribute("rel", "noopener noreferrer"); }
+  else { link.href = "https://voidsmithindustries.com/torn/scripts.html"; }
+  link.style.borderColor = release.updated ? "#e7b04c" : release.checked && release.label === "Up to date" ? "#69be85" : "";
+}
+function checkReleaseStatus(root) {
+  release.activeRoot = root;
+  showReleaseStatus(root);
+  if (release.checked) return;
+  release.checked = true;
+  const request = typeof GM_xmlhttpRequest === "function" ? GM_xmlhttpRequest : globalThis.GM_xmlhttpRequest;
+  if (typeof request !== "function") { release.label = "Check updates"; showReleaseStatus(root); return; }
+  request({
+    method: "GET", url: "https://voidsmithindustries.com/torn/data/scripts.json", timeout: 12000, anonymous: true, withCredentials: false,
+    onload: ({ status, responseText }) => {
+      try {
+        if (status !== 200) throw Error("No release data");
+        const items = JSON.parse(responseText);
+        const item = Array.isArray(items) && items.find(x => x?.id === "company-training-manager");
+        if (!item || !["Live","Beta"].includes(item.status) || item.publication?.status !== "approved" || item.publication?.installApproved !== true) throw Error("No approved release");
+        const current = releaseVersion(globalThis.GM_info?.script?.version);
+        const newest = releaseVersion(item.version);
+        if (!current || !newest) throw Error("Invalid version");
+        const outdated = current.findIndex((part,i) => part !== newest[i]);
+        const needsUpdate = outdated >= 0 && current[outdated] < newest[outdated];
+        if (needsUpdate) {
+          const target = new URL(item.installUrl);
+          if (target.origin !== "https://voidsmithindustries.com" || target.pathname !== "/torn/install/company-training-manager.user.js" || target.search || target.hash || target.username || target.password) throw Error("Untrusted installer");
+          release.href = target.href;
+          release.label = "Update available · v" + item.version;
+          release.updated = true;
+        } else { release.label = "Up to date"; }
+      } catch { release.label = "Check updates"; }
+      showReleaseStatus(release.activeRoot);
+    },
+    onerror: () => { release.label = "Check updates"; showReleaseStatus(release.activeRoot); },
+    ontimeout: () => { release.label = "Check updates"; showReleaseStatus(release.activeRoot); }
+  });
+}
+
 function pendingTrainReceipt(state, id) {
   return state?.trainReceipts?.receiptsByEmployeeId?.[id]
     ?? state?.trainReceipts?.receiptsByEmployeeId?.[String(id)]
@@ -164,7 +217,7 @@ export function companyManagerHtml(state, _options = {}) {
   return `<section class="r4-tcm-manager r4-tcm-premium" data-tcm-state="${escapeHtml(state.status)}">
     <header class="r4-tcm-header" data-manager-drag-handle>
       <div class="r4-tcm-brand"><span class="r4-tcm-brand-mark">◆</span><div><span>VOIDSMITH INDUSTRIES</span><strong>TRAINING MANAGER</strong></div></div>
-      <div class="r4-tcm-header-right"><span class="r4-tcm-health r4-tcm-health-${health}" title="Training Manager health"></span>
+      <div class="r4-tcm-header-right"><a data-tcm-release-status class="r4-tcm-window-btn r4-tcm-release-status" href="https://voidsmithindustries.com/torn/scripts.html" target="_blank" rel="noopener noreferrer" title="Voidsmith release status">Checking…</a><span class="r4-tcm-health r4-tcm-health-${health}" title="Training Manager health"></span>
         <button type="button" class="r4-tcm-window-btn r4-tcm-attention-btn" data-action="attention" aria-label="Attention" title="Attention">⚠${attentionCount ? `<span>${attentionCount}</span>` : ""}</button>
         <button type="button" class="r4-tcm-window-btn r4-tcm-lock-btn" data-window-action="lock" aria-label="Unlock position" title="Unlock position">${lockIconHtml(true)}</button>
         <button type="button" class="r4-tcm-window-btn" data-window-action="minimize" aria-label="Minimize" title="Minimize">−</button>
@@ -208,6 +261,7 @@ function toggleEmployeeDetails(root, id) {
 export function renderCompanyManager(root, state, actions = {}) {
   if (!root) return;
   root.innerHTML = companyManagerHtml(state);
+  checkReleaseStatus(root);
   if (!root.querySelectorAll) return;
   for (const button of root.querySelectorAll("[data-action]")) {
     button.addEventListener?.("click", async () => {

@@ -2,6 +2,14 @@
 
 All notable changes to Torn Company Training Manager are documented here.
 
+## [1.2.7] - Unreleased
+
+### Update status
+
+- Added a read-only current-version indicator with a strictly validated Voidsmith installer URL.
+- The version check is anonymous and never transmits Torn credentials, player details or company data.
+- Hardened the indicator against route remounts and userscript-manager grant differences.
+
 ## [1.2.6] - 2026-09-18
 
 ### Presentation

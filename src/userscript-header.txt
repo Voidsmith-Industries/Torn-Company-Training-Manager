@@ -16,5 +16,6 @@
 // @grant        GM_registerMenuCommand
 // @grant        GM_info
 // @connect      api.torn.com
+// @connect      voidsmithindustries.com
 // @run-at       document-idle
 // ==/UserScript==
