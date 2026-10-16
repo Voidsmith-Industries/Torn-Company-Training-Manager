@@ -1654,7 +1654,7 @@
       dockedPay: null,
       dockedAt: nowInt(nowSeconds),
       dockVerifiedAt: null,
-      reasonsAtDock: Array.isArray(eligibility?.reasons) ? eligibility.reasons.map((r) => ({ ...r })) : [],
+      reasonsAtDock: Array.isArray(eligibility?.reasons)? eligibility.reasons.map((r) => ({ ...r })) : [],
       restoredAt: null
     };
   }
@@ -2127,8 +2127,7 @@
         history: {
           eventCount: Object.keys(this.state.history?.eventsByNewsId || {}).length,
           unresolvedCount: Object.keys(this.state.history?.unresolvedByNewsId || {}).length,
-          newestTimestamp: Number(this.state.history?.newestTimestamp) || 0
-        },
+          newestTimestamp: Number(this.state.history?.newestTimestamp) || 0},
         audit: {
           entryCount: this.state.audit?.entries?.length ?? 0,
           storageError: this.state.auditError || null
@@ -3294,7 +3293,7 @@
   }
 
   // src/ui/company-manager.js
-  var release = { checked: false, label: "Checking\u2026", href: null, updated: false };
+  var release = { checked: false, label: "Checking\u2026", href: null, updated: false, activeRoot: null };
   function releaseVersion(value) {
     const bits = String(value ?? "").replace(/^v/i, "").split(".");
     if (bits.length !== 3 || bits.some((bit) => !/^\d+$/.test(bit))) return null;
@@ -3304,6 +3303,7 @@
     const link = root?.querySelector?.("[data-tcm-release-status]");
     if (!link) return;
     link.textContent = release.label;
+    link.title = release.label;
     const url = release.href;
     if (url) {
       link.href = url;
@@ -3315,10 +3315,11 @@
     link.style.borderColor = release.updated ? "#e7b04c" : release.checked && release.label === "Up to date" ? "#69be85" : "";
   }
   function checkReleaseStatus(root) {
+    release.activeRoot = root;
     showReleaseStatus(root);
     if (release.checked) return;
     release.checked = true;
-    const request = globalThis.GM_xmlhttpRequest;
+    const request = typeof GM_xmlhttpRequest === "function" ? GM_xmlhttpRequest : globalThis.GM_xmlhttpRequest;
     if (typeof request !== "function") {
       release.label = "Check updates";
       showReleaseStatus(root);
@@ -3328,6 +3329,8 @@
       method: "GET",
       url: "https://voidsmithindustries.com/torn/data/scripts.json",
       timeout: 12e3,
+      anonymous: true,
+      withCredentials: false,
       onload: ({ status, responseText }) => {
         try {
           if (status !== 200) throw Error("No release data");
@@ -3341,7 +3344,7 @@
           const needsUpdate = outdated >= 0 && current[outdated] < newest[outdated];
           if (needsUpdate) {
             const target = new URL(item.installUrl);
-            if (target.protocol !== "https:" || target.hostname !== "voidsmithindustries.com" || !target.pathname.startsWith("/torn/install/")) throw Error("Untrusted installer");
+            if (target.origin !== "https://voidsmithindustries.com" || target.pathname !== "/torn/install/company-training-manager.user.js" || target.search || target.hash || target.username || target.password) throw Error("Untrusted installer");
             release.href = target.href;
             release.label = "Update available \xB7 v" + item.version;
             release.updated = true;
@@ -3351,15 +3354,15 @@
         } catch {
           release.label = "Check updates";
         }
-        showReleaseStatus(root);
+        showReleaseStatus(release.activeRoot);
       },
       onerror: () => {
         release.label = "Check updates";
-        showReleaseStatus(root);
+        showReleaseStatus(release.activeRoot);
       },
       ontimeout: () => {
         release.label = "Check updates";
-        showReleaseStatus(root);
+        showReleaseStatus(release.activeRoot);
       }
     });
   }
@@ -3508,7 +3511,7 @@
     return `<section class="r4-tcm-manager r4-tcm-premium" data-tcm-state="${escapeHtml(state.status)}">
     <header class="r4-tcm-header" data-manager-drag-handle>
       <div class="r4-tcm-brand"><span class="r4-tcm-brand-mark">\u25C6</span><div><span>VOIDSMITH INDUSTRIES</span><strong>TRAINING MANAGER</strong></div></div>
-      <div class="r4-tcm-header-right"><a data-tcm-release-status class="r4-tcm-window-btn" href="https://voidsmithindustries.com/torn/scripts.html" target="_blank" rel="noopener noreferrer" style="width:auto;min-width:92px;padding:0 7px;font-size:11px;white-space:nowrap" title="Voidsmith release status">Checking\u2026</a><span class="r4-tcm-health r4-tcm-health-${health}" title="Training Manager health"></span>
+      <div class="r4-tcm-header-right"><a data-tcm-release-status class="r4-tcm-window-btn" href="https://voidsmithindustries.com/torn/scripts.html" target="_blank" rel="noopener noreferrer" style="min-width:0;max-width:72px;flex:0 1 72px;overflow:hidden;text-overflow:ellipsis;padding:0 4px;font-size:10px;white-space:nowrap" title="Voidsmith release status">Checking\u2026</a><span class="r4-tcm-health r4-tcm-health-${health}" title="Training Manager health"></span>
         <button type="button" class="r4-tcm-window-btn r4-tcm-attention-btn" data-action="attention" aria-label="Attention" title="Attention">\u26A0${attentionCount ? `<span>${attentionCount}</span>` : ""}</button>
         <button type="button" class="r4-tcm-window-btn r4-tcm-lock-btn" data-window-action="lock" aria-label="Unlock position" title="Unlock position">${lockIconHtml(true)}</button>
         <button type="button" class="r4-tcm-window-btn" data-window-action="minimize" aria-label="Minimize" title="Minimize">\u2212</button>
@@ -4013,7 +4016,7 @@
     const contracts = paid.contractsById || {};
     return (paid.queue || []).map((id) => contracts[id]).filter(Boolean);
   }
-  function paidSettingsHtml(state = {}) {
+  function paidSettingsHtml(state ={}) {
     const contracts = activeContracts(state);
     const rows = contracts.map((contract, index) => `<div class="r4-tcm-paid-setting-row" data-paid-contract="${escapeHtml(contract.id)}">
     <div class="r4-tcm-paid-setting-main">
@@ -4706,7 +4709,7 @@
 .r4-tcm-manager-body{display:flex;flex:1;min-height:0;flex-direction:column;overflow:auto;padding:14px;gap:12px;background:linear-gradient(180deg,rgba(255,255,255,.01),transparent 28%)}.r4-tcm-feedback{margin:0}.r4-tcm-stale{background:#5a3d13;color:#ffe9bd!important;padding:9px 10px;border:1px solid #8d6423;border-radius:8px}.r4-tcm-error{background:#531f22;color:#ffd7d7!important;padding:9px 10px;border:1px solid #79353a;border-radius:8px}.r4-tcm-info{background:#173247;color:#d9efff!important;padding:9px 10px;border:1px solid #29516e;border-radius:8px}.r4-tcm-success{background:#173c22;color:#dcffdd!important;padding:9px 10px;border:1px solid #2e673c;border-radius:8px}
 .r4-tcm-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.r4-tcm-metrics>div{background:linear-gradient(180deg,#16161b,#101014);border:1px solid var(--vs-line);border-radius:9px;padding:10px 12px;min-width:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}.r4-tcm-metrics strong{display:block;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff!important}.r4-tcm-metrics span{display:block;margin-top:2px;font-size:9px;letter-spacing:.12em;color:#96969d!important}
 .r4-tcm-primary-card{padding:16px;border-radius:11px;border:1px solid #42424c;background:radial-gradient(circle at 90% 0,rgba(195,71,67,.12),transparent 36%),linear-gradient(180deg,#18181d,#101014);text-align:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 8px 24px rgba(0,0,0,.23)}.r4-tcm-eyebrow{font-size:9px;letter-spacing:.17em;color:#b8b8bd!important}.r4-tcm-primary-name{font-size:24px;font-weight:750;margin:4px 0 1px;color:#fff!important}.r4-tcm-primary-reason{font-size:12px;color:#bcbcc1!important;margin-bottom:12px}.r4-tcm-train-primary{width:min(440px,100%);min-height:44px;border:1px solid #438b4a;border-radius:8px;background:linear-gradient(180deg,#397c40,#2d6333);color:#fff!important;font-weight:800;letter-spacing:.04em;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 7px 18px #0005;transition:filter .15s ease,transform .15s ease}.r4-tcm-train-primary:hover:not(:disabled){filter:brightness(1.14);transform:translateY(-1px)}.r4-tcm-train-primary:disabled{opacity:.42;cursor:not-allowed}.r4-tcm-paid-progress{font-size:11px;color:#d1b671!important;margin-top:8px}
-.r4-tcm-section-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10px;font-weight:750;letter-spacing:.11em;color:#aaa!important}.r4-tcm-link-btn{border:0;background:transparent;color:#b9b9c0!important;font:inherit;cursor:pointer;padding:3px 5px}.r4-tcm-link-btn:hover{color:#fff!important}.r4-tcm-queue,.r4-tcm-roster{background:linear-gradient(180deg,#131318,#0e0e12);border:1px solid var(--vs-line);border-radius:10px;padding:11px;box-shadow:inset 0 1px 0 rgba(255,255,255,.02)}.r4-tcm-queue ol{list-style:none;margin:8px 0 0;padding:0}.r4-tcm-queue li{display:grid;grid-template-columns:24px minmax(90px,1fr) auto;gap:8px;align-items:center;min-height:30px;border-top:1px solid #29292d;font-size:12px}.r4-tcm-queue li:first-child{border-top:0}.r4-tcm-queue-rank{color:#73737a!important}.r4-tcm-queue-name{font-weight:700;color:#eee!important}.r4-tcm-queue-reason{color:#a9a9b0!important;text-align:right}
+.r4-tcm-section-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10px;font-weight:750;letter-spacing:.11em;color:#aaa!important}.r4-tcm-link-btn{border:0;background:transparent;color:#b9b9c0!important;font:inherit;cursor:pointer;padding:3px 5px}.r4-tcm-link-btn:hover{color:#fff!important}.r4-tcm-queue,.r4-tcm-roster{background:linear-gradient(180deg,#131318,#0e0e12);border:1px solid var(--vs-line);border-radius:10px;padding:11px;box-shadow:inset0 1px 0 rgba(255,255,255,.02)}.r4-tcm-queue ol{list-style:none;margin:8px 0 0;padding:0}.r4-tcm-queue li{display:grid;grid-template-columns:24px minmax(90px,1fr) auto;gap:8px;align-items:center;min-height:30px;border-top:1px solid #29292d;font-size:12px}.r4-tcm-queue li:first-child{border-top:0}.r4-tcm-queue-rank{color:#73737a!important}.r4-tcm-queue-name{font-weight:700;color:#eee!important}.r4-tcm-queue-reason{color:#a9a9b0!important;text-align:right}
 .r4-tcm-table-wrap{overflow:auto;flex:1;min-height:0;margin-top:8px}.r4-tcm-table{width:100%;border-collapse:collapse;font-size:12px;color:#f4f4f4!important}.r4-tcm-table th,.r4-tcm-table td{padding:8px 6px;border-bottom:1px solid #333338;text-align:left;vertical-align:middle;color:#f4f4f4!important}.r4-tcm-table th{font-weight:700;background:#19191c;position:sticky;top:0;z-index:1;color:#bdbdc3!important}.r4-tcm-row-next{background:#27402155}.r4-tcm-row-ineligible{background:rgba(100,20,20,.13)}.r4-tcm-row-pending{background:rgba(120,93,20,.13)}.r4-tcm-row-toggle{border:0;background:transparent;color:#fff!important;text-align:left;cursor:pointer;padding:0}.r4-tcm-row-toggle strong{display:block}.r4-tcm-row-toggle .r4-tcm-muted{font-size:10px}.r4-tcm-row-reason{display:block;margin-top:3px;font-size:10px;color:#a7a7ad!important}.r4-tcm-row-actions{text-align:right!important;white-space:nowrap}.r4-tcm-hidden-action{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important}.r4-tcm-detail-row[hidden]{display:none}.r4-tcm-detail-row td{background:#0e0e10!important}.r4-tcm-detail-grid{display:grid;grid-template-columns:repeat(3,minmax(100px,1fr));gap:8px 14px;padding:6px}.r4-tcm-detail-grid span{display:flex;flex-direction:column;color:#c8c8ce!important}.r4-tcm-detail-grid b{font-size:9px;letter-spacing:.06em;color:#7f7f86!important;text-transform:uppercase;margin-bottom:2px}
 .r4-tcm-chip{display:inline-flex;align-items:center;border-radius:999px;padding:3px 7px;font-size:9px;font-weight:800;letter-spacing:.04em;border:1px solid transparent}.r4-tcm-chip-ok{color:#89e18c!important;background:#173c22;border-color:#2e673c}.r4-tcm-chip-next{color:#b7f5b9!important;background:#214d22;border-color:#438b4a}.r4-tcm-chip-paid{color:#efd591!important;background:#3f3315;border-color:#695824}.r4-tcm-chip-priority{color:#d9d3ff!important;background:#30284e;border-color:#51447b}.r4-tcm-chip-warn{color:#ffe397!important;background:#493a13;border-color:#77601d}.r4-tcm-chip-bad{color:#ffabab!important;background:#4b1e22;border-color:#79353a}.r4-tcm-chip-neutral{color:#d6d6dc!important;background:#2b2b30;border-color:#494950}
 .r4-tcm-status-ok{color:#7cff4f!important;font-weight:700}.r4-tcm-status-bad{color:#ff6b6b!important;font-weight:700}.r4-tcm-status-warn{color:#ffe45c!important;font-weight:700}.r4-tcm-muted{color:#c7c7c7!important;opacity:1}.r4-tcm-reason{display:block;font-size:11px;margin-top:2px;color:#e8e8e8!important}.r4-tcm-manager strong{color:#fff!important}
@@ -5304,4 +5307,4 @@ Import this backup?`) : false;
       console.error("[TCM] Failed to start:", error?.message || "Unknown error");
     });
   }
-})();
+})();⚠️ Sin salida
