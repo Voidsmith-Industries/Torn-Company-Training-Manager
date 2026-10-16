@@ -34,7 +34,7 @@ function checkReleaseStatus(root) {
         const items = JSON.parse(responseText);
         const item = Array.isArray(items) && items.find(x => x?.id === "company-training-manager");
         if (!item || !["Live","Beta"].includes(item.status) || item.publication?.status !== "approved" || item.publication?.installApproved !== true) throw Error("No approved release");
-        const current = releaseVersion(globalThis.GM_info?.script?.version || "1.2.7");
+        const current = releaseVersion(globalThis.GM_info?.script?.version);
         const newest = releaseVersion(item.version);
         if (!current || !newest) throw Error("Invalid version");
         const outdated = current.findIndex((part,i) => part !== newest[i]);
@@ -217,7 +217,7 @@ export function companyManagerHtml(state, _options = {}) {
   return `<section class="r4-tcm-manager r4-tcm-premium" data-tcm-state="${escapeHtml(state.status)}">
     <header class="r4-tcm-header" data-manager-drag-handle>
       <div class="r4-tcm-brand"><span class="r4-tcm-brand-mark">◆</span><div><span>VOIDSMITH INDUSTRIES</span><strong>TRAINING MANAGER</strong></div></div>
-      <div class="r4-tcm-header-right"><a data-tcm-release-status class="r4-tcm-window-btn" href="https://voidsmithindustries.com/torn/scripts.html" target="_blank" rel="noopener noreferrer" style="min-width:0;max-width:72px;flex:0 1 72px;overflow:hidden;text-overflow:ellipsis;padding:0 4px;font-size:10px;white-space:nowrap" title="Voidsmith release status">Checking…</a><span class="r4-tcm-health r4-tcm-health-${health}" title="Training Manager health"></span>
+      <div class="r4-tcm-header-right"><a data-tcm-release-status class="r4-tcm-window-btn r4-tcm-release-status" href="https://voidsmithindustries.com/torn/scripts.html" target="_blank" rel="noopener noreferrer" title="Voidsmith release status">Checking…</a><span class="r4-tcm-health r4-tcm-health-${health}" title="Training Manager health"></span>
         <button type="button" class="r4-tcm-window-btn r4-tcm-attention-btn" data-action="attention" aria-label="Attention" title="Attention">⚠${attentionCount ? `<span>${attentionCount}</span>` : ""}</button>
         <button type="button" class="r4-tcm-window-btn r4-tcm-lock-btn" data-window-action="lock" aria-label="Unlock position" title="Unlock position">${lockIconHtml(true)}</button>
         <button type="button" class="r4-tcm-window-btn" data-window-action="minimize" aria-label="Minimize" title="Minimize">−</button>
