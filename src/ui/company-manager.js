@@ -3,7 +3,7 @@ import { showConfirmModal, showNumberPrompt } from "./modals.js";
 
 
 // Read-only release discovery. Never send company or player data to the website.
-const release = { checked: false, label: "Checking…", href: null, updated: false };
+const release = { checked: false, label: "Checking…", href: null, updated: false, activeRoot: null };
 function releaseVersion(value) {
   const bits = String(value ?? "").replace(/^v/i, "").split(".");
   if (bits.length !== 3 || bits.some(bit => !/^\d+$/.test(bit))) return null;
@@ -19,13 +19,14 @@ function showReleaseStatus(root) {
   link.style.borderColor = release.updated ? "#e7b04c" : release.checked && release.label === "Up to date" ? "#69be85" : "";
 }
 function checkReleaseStatus(root) {
+  release.activeRoot = root;
   showReleaseStatus(root);
   if (release.checked) return;
   release.checked = true;
-  const request = globalThis.GM_xmlhttpRequest;
+  const request = typeof GM_xmlhttpRequest === "function" ? GM_xmlhttpRequest : globalThis.GM_xmlhttpRequest;
   if (typeof request !== "function") { release.label = "Check updates"; showReleaseStatus(root); return; }
   request({
-    method: "GET", url: "https://voidsmithindustries.com/torn/data/scripts.json", timeout: 12000,
+    method: "GET", url: "https://voidsmithindustries.com/torn/data/scripts.json", timeout: 12000, anonymous: true, withCredentials: false,
     onload: ({ status, responseText }) => {
       try {
         if (status !== 200) throw Error("No release data");
@@ -39,16 +40,16 @@ function checkReleaseStatus(root) {
         const needsUpdate = outdated >= 0 && current[outdated] < newest[outdated];
         if (needsUpdate) {
           const target = new URL(item.installUrl);
-          if (target.protocol !== "https:" || target.hostname !== "voidsmithindustries.com" || !target.pathname.startsWith("/torn/install/")) throw Error("Untrusted installer");
+          if (target.origin !== "https://voidsmithindustries.com" || target.pathname !== "/torn/install/company-training-manager.user.js" || target.search || target.hash || target.username || target.password) throw Error("Untrusted installer");
           release.href = target.href;
           release.label = "Update available · v" + item.version;
           release.updated = true;
         } else { release.label = "Up to date"; }
       } catch { release.label = "Check updates"; }
-      showReleaseStatus(root);
+      showReleaseStatus(release.activeRoot);
     },
-    onerror: () => { release.label = "Check updates"; showReleaseStatus(root); },
-    ontimeout: () => { release.label = "Check updates"; showReleaseStatus(root); }
+    onerror: () => { release.label = "Check updates"; showReleaseStatus(release.activeRoot); },
+    ontimeout: () => { release.label = "Check updates"; showReleaseStatus(release.activeRoot); }
   });
 }
 
