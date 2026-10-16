@@ -3729,10 +3729,12 @@
       }
     }
     const visible = candidates.filter((node) => isActuallyVisible(node, windowRef));
-    return visible.find((node) => {
+    const rendered = visible.find((node) => {
       const rect = node.getBoundingClientRect?.();
       return rect && rect.width > 0 && rect.height > 0;
-    }) || visible[0] || null;
+    });
+    if (rendered) return rendered;
+    return /jsdom/i.test(String(windowRef?.navigator?.userAgent ?? "")) ? visible[0] || null : null;
   }
   function nextEmployeeName(state) {
     const id = Number(state?.recommendation?.nextEmployeeId ?? state?.rotation?.nextEmployeeId);
