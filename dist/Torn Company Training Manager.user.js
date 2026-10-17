@@ -3809,7 +3809,7 @@
       return rect && rect.width > 0 && rect.height > 0;
     });
     if (rendered) return rendered;
-    return /jsdom/i.test(String(windowRef?.navigator?.userAgent ?? "")) ? visible[0] || null : null;
+    return visible.length === 1 ? visible[0] : null;
   }
   function nextEmployeeName(state) {
     const id = Number(state?.recommendation?.nextEmployeeId ?? state?.rotation?.nextEmployeeId);
