@@ -29,9 +29,10 @@ export function findStatusIconsBar(documentRef, windowRef = globalThis.window) {
     return rect && rect.width > 0 && rect.height > 0;
   });
   if (rendered) return rendered;
-  // JSDOM has no layout engine. In real Torn pages a zero-sized responsive
-  // status bar is not an accessible launcher, even if its own CSS is visible.
-  return /jsdom/i.test(String(windowRef?.navigator?.userAgent ?? "")) ? visible[0] || null : null;
+  // An empty but CSS-visible status list may have no box until our launcher
+  // enters it. Prefer it only when there is exactly one visible candidate;
+  // multiple zero-size copies are ambiguous responsive headers, so fail closed.
+  return visible.length === 1 ? visible[0] : null;
 }
 
 function nextEmployeeName(state) {
