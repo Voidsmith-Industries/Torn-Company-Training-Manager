@@ -2,7 +2,7 @@
 
 Tampermonkey userscript for Torn company directors, focused specifically on company training.
 
-**Current release candidate: v1.2.7 (not yet published)**
+**Current release: v1.2.8**
 
 The manager combines a guarded training queue, paid-train commitments, fair rotation modes, temporary director overrides, training-focused notifications, local recovery tools, and the existing verified training/payroll safety model. It deliberately does not attempt to become a general company ERP.
 
@@ -13,6 +13,10 @@ Open the production userscript and let Tampermonkey install or update it:
 `https://voidsmithindustries.com/torn/install/company-training-manager.user.js`
 
 The userscript `@updateURL` and `@downloadURL` point to the same Voidsmith Industries website release file.
+
+## v1.2.8 native Torn header launcher
+
+The launcher now uses Torn's native status icon area and recovers after SPA header changes. Training and payroll authority are unchanged.
 
 ## v1.2.6 userscript icon
 

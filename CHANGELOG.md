@@ -2,7 +2,14 @@
 
 All notable changes to Torn Company Training Manager are documented here.
 
-## [1.2.7] - Unreleased
+## [1.2.8] - 2026-10-17
+
+### Launcher
+
+- Added native Torn header launcher with SPA recovery and accessible focus controls.
+- Preserved current training and payroll permission boundaries.
+
+## [1.2.7] - 2026-10-16
 
 ### Update status
 
