@@ -104,14 +104,12 @@ test("sidebar dock stays visible and toggles the manager", async () => {
   dock.destroy();
 });
 
-test("sidebar dock falls back to a tiny launcher while Torn status bar is absent", async () => {
+test("training launcher never creates a floating fallback outside Torn status bar", async () => {
   const mod = await loadDockModule();
-  assert.equal(typeof mod.mountManagerDock, "function");
   const documentRef = fakeDocument({ statusBar: false });
   const dock = mod.mountManagerDock({ documentRef, windowRef: {}, state: {}, onToggle() {}, MutationObserverImpl: null });
-  const fallback = documentRef.querySelector("#r4-tcm-dock-fallback");
-  assert.ok(fallback);
-  assert.equal(fallback.style.display, "block");
+  assert.equal(documentRef.querySelector("#r4-tcm-dock-fallback"), null);
+  assert.equal(documentRef.querySelector(".r4-tcm-dock-icon"), null);
   dock.destroy();
 });
 
