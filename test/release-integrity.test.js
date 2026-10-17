@@ -11,9 +11,9 @@ async function text(path) {
   return readFile(resolve(root, path), "utf8");
 }
 
-test("package version is the v1.2.7 release source", async () => {
+test("package version is the v1.2.8 release source", async () => {
   const pkg = JSON.parse(await text("package.json"));
-  assert.equal(pkg.version, "1.2.7");
+  assert.equal(pkg.version, "1.2.8");
 });
 
 test("source header uses build-time version placeholder and explicit update metadata", async () => {
@@ -36,11 +36,11 @@ test("built userscript version and metadata match package version", async () => 
   assert.ok(dist.includes("@supportURL   " + SUPPORT));
 });
 
-test("README and changelog identify the v1.2.7 candidate without claiming publication", async () => {
+test("README and changelog identify the v1.2.8 release", async () => {
   const readme = await text("README.md");
   const changelog = await text("CHANGELOG.md");
-  assert.match(readme, /Current release candidate:\s*v1\.2\.7/i);
-  assert.match(changelog, /\[1\.2\.7\] - Unreleased/);
+  assert.match(readme, /Current release:\s*v1\.2\.8/i);
+  assert.match(changelog, /\[1\.2\.8\] - 2026-10-17/);
   assert.match(changelog, /distribution|install|update/i);
 });
 
